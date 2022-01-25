@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,14 +14,26 @@ import (
 
 const changelogDir = ".changelog"
 
-// pulled from nomad .changelog/changelog.tmpl
+// pulled from nomad/.changelog/changelog.tmpl
 var kinds = []string{
-	"breaking-change",
-	"security",
-	"improvement",
-	"deprecation",
 	"bug",
+	"improvement",
+	"security",
+	"breaking-change",
+	"deprecation",
 	"note",
+}
+
+const usage = `
+usage: %s [type] [issue/pr] <message>
+
+type:     %s
+issue/pr: from github
+message:  (optional) directly insert message in note
+`
+
+func outputUsage(w io.Writer, name string) {
+	_, _ = io.WriteString(w, fmt.Sprintf(usage, name, strings.Join(kinds, "|")))
 }
 
 func main() {
@@ -30,8 +43,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	params, err := extract(os.Args[1:])
-	if err != nil {
+	program := os.Args[0]
+	args := os.Args[1:]
+
+	params, err := extract(args)
+	switch {
+	case errors.Is(err, argsErr):
+		outputUsage(os.Stderr, program)
+		os.Exit(1)
+	case err != nil:
 		_, _ = fmt.Fprintf(os.Stderr, "bad arguments: %s", err)
 		os.Exit(1)
 	}
@@ -53,14 +73,12 @@ func findCLDir(required string) (string, error) {
 
 	// are we in the CL dir?
 	cwd := filepath.Base(full)
-	fmt.Println("cwd:", cwd, "required:", required)
 	if cwd == required {
 		return ".", nil
 	}
 
 	// is the CL dir a subdirectory?
 	sub := filepath.Join(full, changelogDir)
-	fmt.Println("sub:", sub)
 	_, statErr := os.Stat(sub)
 	return sub, statErr
 }
@@ -81,6 +99,7 @@ func createFile(dir string, p *Params) error {
 type Params struct {
 	Type string
 	PR   int
+	Note string
 }
 
 func (p *Params) Filename() string {
@@ -88,14 +107,29 @@ func (p *Params) Filename() string {
 }
 
 func (p *Params) Write(w io.Writer) error {
-	s := fmt.Sprintf("```\nrelease-note:%s\nMESSAGE\n```\n", p.Type)
+	note := "NOTE"
+	if p.Note != "" {
+		note = p.Note
+	}
+
+	s := fmt.Sprintf("```\nrelease-note:%s\n%s\n```\n", p.Type, note)
 	_, err := io.WriteString(w, s)
 	return err
 }
 
+var argsErr = errors.New("number of arguments")
+
+func checkNumArgs(n int) error {
+	switch n {
+	case 2, 3:
+		return nil
+	}
+	return argsErr
+}
+
 func extract(args []string) (*Params, error) {
-	if n := len(args); n != 2 {
-		return nil, fmt.Errorf("expected 2 arguments, got %d", n)
+	if err := checkNumArgs(len(args)); err != nil {
+		return nil, err
 	}
 
 	kind := args[0]
@@ -108,9 +142,15 @@ func extract(args []string) (*Params, error) {
 		return nil, fmt.Errorf("pr must be a number")
 	}
 
+	var note string
+	if len(args) == 3 {
+		note = args[2]
+	}
+
 	return &Params{
 		Type: kind,
 		PR:   pr,
+		Note: note,
 	}, nil
 }
 

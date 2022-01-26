@@ -127,7 +127,7 @@ func (p *Params) Write(w io.Writer) error {
 		note = p.Note
 	}
 
-	s := fmt.Sprintf("```\nrelease-note:%s\n%s\n```\n", p.Type, note)
+	s := fmt.Sprintf("```release-note:%s\n%s\n```\n", p.Type, note)
 	_, err := io.WriteString(w, s)
 	return err
 }

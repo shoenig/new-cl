@@ -3,6 +3,7 @@ module gophers.dev/cmds/new-cl
 go 1.17
 
 require (
+	github.com/stretchr/testify v1.3.0
 	gophers.dev/pkgs/extractors v0.2.3
 	gophers.dev/pkgs/ignore v0.3.1
 )

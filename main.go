@@ -11,18 +11,6 @@ import (
 	"gophers.dev/pkgs/extractors/env"
 )
 
-const changelogDir = ".changelog"
-
-// pulled from nomad/.changelog/changelog.tmpl
-var kinds = []string{
-	"bug",
-	"improvement",
-	"security",
-	"breaking-change",
-	"deprecation",
-	"note",
-}
-
 const usage = `
 usage)
   %s [type] [pr] <message>
@@ -37,7 +25,11 @@ example)
 `
 
 func outputUsage(w io.Writer, name string) {
-	_, _ = io.WriteString(w, fmt.Sprintf(usage, name, strings.Join(kinds, "|"), name))
+	_, _ = io.WriteString(w, fmt.Sprintf(
+		usage, name, strings.ReplaceAll(
+			tool.ChangelogKinds, ",", "|",
+		), name,
+	))
 }
 
 func outputErr(w io.Writer, err error) {
@@ -45,10 +37,8 @@ func outputErr(w io.Writer, err error) {
 }
 
 func main() {
-	out := os.Stderr
-
 	r := &tool.Runner{
-		Output: out,
+		Output: os.Stdout,
 		Env:    env.OS,
 		Args:   os.Args[1:],
 	}
@@ -56,10 +46,10 @@ func main() {
 	err := r.Run()
 	switch {
 	case errors.Is(tool.ArgErr, err):
-		outputUsage(out, os.Args[0])
+		outputUsage(os.Stderr, os.Args[0])
 		os.Exit(1)
 	case err != nil:
-		outputErr(out, err)
+		outputErr(os.Stderr, err)
 		os.Exit(1)
 	}
 }

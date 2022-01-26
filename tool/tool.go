@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	changelogDirEnv     = "CHANGELOG_DIR"
-	defaultChangelogDir = ".changelog"
+	changelogDirEnv = "CHANGELOG_DIR"
+	ChangelogDir    = ".changelog"
 
-	changelogKindEnv      = "CHANGELOG_KINDS"
-	defaultChangelogKinds = "bug,improvement,security,breaking-change,deprecation,note"
+	changelogKindEnv = "CHANGELOG_KINDS"
+	ChangelogKinds   = "bug,improvement,security,breaking-change,deprecation,note"
 )
 
 type Runner struct {
@@ -48,9 +48,11 @@ func (r *Runner) Run() error {
 		return err
 	}
 
-	fmt.Println("created note:", filepath.Base(file))
-
-	return nil
+	_, err = io.WriteString(
+		r.Output,
+		fmt.Sprintf("created note: %s\n", filepath.Base(file)),
+	)
+	return err
 }
 
 // findTargetDir allows the user to run from within the .changelog directory, or
@@ -75,7 +77,7 @@ func findTargetDir(targetDir string) (string, error) {
 }
 
 func (r *Runner) getChangelogDir() (string, error) {
-	changelogDir := defaultChangelogDir
+	changelogDir := ChangelogDir
 	if err := env.Parse(r.Env, env.Schema{
 		changelogDirEnv: env.String(&changelogDir, false),
 	}); err != nil {
@@ -145,7 +147,7 @@ func checkNumArgs(n int) error {
 func (r *Runner) checkKind(s string) error {
 	l := strings.ToLower(s)
 
-	kinds := defaultChangelogKinds
+	kinds := ChangelogKinds
 	if err := env.Parse(r.Env, env.Schema{
 		changelogKindEnv: env.String(&kinds, false),
 	}); err != nil {

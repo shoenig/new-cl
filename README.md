@@ -22,6 +22,16 @@ go install gophers.dev/cmds/new-cl@latest
 By default `new-cl` looks for a `.changelog` directory for storage of changelog notes.
 A different directory name can be specified by setting `CHANGELOG_DIR` to a different name.
 
+e.g., `CHANGELOG_DIR=.cl-notes`
+
+`CHANGELOG_KINDS` environment variable
+
+By default `new-cl` validates note types of `bug`, `improvement`, `security`,
+`breaking-change`, `deprecation`, and `note`. The acceptable type values can be
+configured by setting `CHANGELOG_KINDS` to a comma-separated list of types.
+
+e.g., `CHANGELOG_KINDS=bug,feature,notice`
+
 # Usage
 
 ```

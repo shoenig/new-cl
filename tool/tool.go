@@ -13,8 +13,13 @@ import (
 	"gophers.dev/pkgs/ignore"
 )
 
-const changelogDirEnv = "CHANGELOG_DIR"
-const defaultChangelogDir = ".changelog"
+const (
+	changelogDirEnv     = "CHANGELOG_DIR"
+	defaultChangelogDir = ".changelog"
+
+	changelogKindEnv      = "CHANGELOG_KINDS"
+	defaultChangelogKinds = "bug,improvement,security,breaking-change,deprecation,note"
+)
 
 type Runner struct {
 	Output io.Writer
@@ -85,7 +90,7 @@ func (r *Runner) extractArgs() (*Params, error) {
 	}
 
 	kind := r.Args[0]
-	if err := checkKind(kind); err != nil {
+	if err := r.checkKind(kind); err != nil {
 		return nil, err
 	}
 
@@ -104,18 +109,6 @@ func (r *Runner) extractArgs() (*Params, error) {
 		PR:   pr,
 		Note: note,
 	}, nil
-}
-
-// pulled from nomad/.changelog/changelog.tmpl
-//
-// todo: extract values from tmpl file
-var kinds = []string{
-	"bug",
-	"improvement",
-	"security",
-	"breaking-change",
-	"deprecation",
-	"note",
 }
 
 type Params struct {
@@ -149,9 +142,17 @@ func checkNumArgs(n int) error {
 	return ArgErr
 }
 
-func checkKind(s string) error {
+func (r *Runner) checkKind(s string) error {
 	l := strings.ToLower(s)
-	for _, kind := range kinds {
+
+	kinds := defaultChangelogKinds
+	if err := env.Parse(r.Env, env.Schema{
+		changelogKindEnv: env.String(&kinds, false),
+	}); err != nil {
+		return err
+	}
+
+	for _, kind := range strings.Split(kinds, ",") {
 		if l == kind {
 			return nil
 		}

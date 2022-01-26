@@ -23,17 +23,17 @@ type Runner struct {
 }
 
 func (r *Runner) Run() error {
+	params, err := r.extractArgs()
+	if err != nil {
+		return err
+	}
+
 	targetDir, err := r.getChangelogDir()
 	if err != nil {
 		return err
 	}
 
 	actualDir, err := findTargetDir(targetDir)
-	if err != nil {
-		return err
-	}
-
-	params, err := r.extractArgs()
 	if err != nil {
 		return err
 	}

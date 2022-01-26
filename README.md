@@ -2,6 +2,11 @@
 
 Create Changelog entries consumed by Hashicorp's [go-changelog](https://github.com/hashicorp/go-changelog)
 
+[![Go Report Card](https://goreportcard.com/badge/gophers.dev/cmds/new-cl)](https://goreportcard.com/report/gophers.dev/cmds/new-cl)
+[![GoDoc](https://godoc.org/gophers.dev/cmds/new-cl?status.svg)](https://godoc.org/gophers.dev/cmds/new-cl)
+![NetflixOSS Lifecycle](https://img.shields.io/osslifecycle/shoenig/new-cl.svg)
+![GitHub](https://img.shields.io/github/license/shoenig/new-cl.svg)
+
 # Getting Started
 
 The `new-cl` command can be installed by running
@@ -23,9 +28,9 @@ A different directory name can be specified by setting `CHANGELOG_DIR` to a diff
 new-cl [type] [pr] <message>
 ```
 
-`type`: one of `bug`, `improvement`, `security`, `breaking-change`, `deprecation`, `note`
-`pr`: the PR number assigned by GitHub
-`message`: (optional) the message the changelog note will contain
+- `type`: one of `bug`, `improvement`, `security`, `breaking-change`, `deprecation`, `note`
+- `pr`: the PR number assigned by GitHub
+- `message`: (optional) the message of the changelog note
 
 # Example Usages
 

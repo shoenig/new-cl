@@ -3,6 +3,7 @@
 Create Changelog entries consumed by Hashicorp's [go-changelog](https://github.com/hashicorp/go-changelog)
 
 [![Go Report Card](https://goreportcard.com/badge/gophers.dev/cmds/new-cl)](https://goreportcard.com/report/gophers.dev/cmds/new-cl)
+![CI](https://img.shields.io/github/workflow/status/shoenig/new-cl/run-ci-tests)
 [![GoDoc](https://godoc.org/gophers.dev/cmds/new-cl?status.svg)](https://godoc.org/gophers.dev/cmds/new-cl)
 ![NetflixOSS Lifecycle](https://img.shields.io/osslifecycle/shoenig/new-cl.svg)
 ![GitHub](https://img.shields.io/github/license/shoenig/new-cl.svg)
